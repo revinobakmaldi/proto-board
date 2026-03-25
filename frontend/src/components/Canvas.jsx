@@ -119,7 +119,7 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
         position: "relative",
         flex: 1,
         overflow: "auto",
-        background: "#FF2600",
+        background: THEME.surface,
         userSelect: isInteracting ? "none" : "auto",
         WebkitUserSelect: isInteracting ? "none" : "auto",
         touchAction: "none",
@@ -130,7 +130,7 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
         position: "relative",
         minWidth: "100%",
         minHeight: "100%",
-        backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.5) 1.5px, transparent 1.5px)`,
+        backgroundImage: `radial-gradient(circle, ${THEME.border} 1.5px, transparent 1.5px)`,
         backgroundSize: `${GRID}px ${GRID}px`,
       }}>
         {components.map((comp) => {
@@ -162,7 +162,7 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
               {isSelected && (
                 <div style={{
                   position: "absolute", inset: -2,
-                  border: `2px dashed #fff`,
+                  border: `2px dashed ${THEME.accent}`,
                   borderRadius: 6, pointerEvents: "none",
                 }} />
               )}
