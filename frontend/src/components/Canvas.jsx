@@ -137,6 +137,8 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
       {components.map((comp) => {
         const isSelected = selected === comp.id;
         const isDragging = dragging === comp.id;
+        const isDraggingOrResizing = dragging === comp.id || resizing?.id === comp.id;
+
         return (
           <div
             key={comp.id}
@@ -148,6 +150,8 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
               height: comp.h,
               cursor: isDragging ? "grabbing" : "grab",
               zIndex: isSelected ? 10 : 1,
+              userSelect: isDraggingOrResizing ? "none" : "auto",
+              WebkitUserSelect: isDraggingOrResizing ? "none" : "auto",
             }}
             onMouseDown={(e) => { e.stopPropagation(); handlePointerDown(e, comp); }}
             onTouchStart={(e) => handleTouchStart(e, comp)}
