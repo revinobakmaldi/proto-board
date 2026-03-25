@@ -1,0 +1,115 @@
+{
+  "name": "proto-board",
+  "description": "No description available",
+  "languages": [
+    "bash",
+    "javascript",
+    "python"
+  ],
+  "frameworks": [
+    "react",
+    "vite",
+    "recharts",
+    "fastapi",
+    "uvicorn",
+    "sqlalchemy",
+    "pydantic",
+    "bcrypt",
+    "python-jose",
+    "python-multipart"
+  ],
+  "files": [
+    {
+      "path": "backend/app/auth.py",
+      "language": "python",
+      "sizeLines": 49
+    },
+    {
+      "path": "backend/app/database.py",
+      "language": "python",
+      "sizeLines": 41
+    },
+    {
+      "path": "backend/app/main.py",
+      "language": "python",
+      "sizeLines": 20
+    },
+    {
+      "path": "backend/app/routes.py",
+      "language": "python",
+      "sizeLines": 82
+    },
+    {
+      "path": "backend/app/schemas.py",
+      "language": "python",
+      "sizeLines": 41
+    },
+    {
+      "path": "combined-server.py",
+      "language": "python",
+      "sizeLines": 107
+    },
+    {
+      "path": "frontend-server.py",
+      "language": "python",
+      "sizeLines": 16
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "language": "javascript",
+      "sizeLines": 133
+    },
+    {
+      "path": "frontend/src/components/Canvas.jsx",
+      "language": "javascript",
+      "sizeLines": 151
+    },
+    {
+      "path": "frontend/src/components/componentRegistry.jsx",
+      "language": "javascript",
+      "sizeLines": 193
+    },
+    {
+      "path": "frontend/src/components/Header.jsx",
+      "language": "javascript",
+      "sizeLines": 85
+    },
+    {
+      "path": "frontend/src/components/Sidebar.jsx",
+      "language": "javascript",
+      "sizeLines": 63
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "language": "javascript",
+      "sizeLines": 22
+    },
+    {
+      "path": "frontend/src/pages/Auth.jsx",
+      "language": "javascript",
+      "sizeLines": 118
+    },
+    {
+      "path": "frontend/src/pages/Layouts.jsx",
+      "language": "javascript",
+      "sizeLines": 91
+    },
+    {
+      "path": "frontend/src/theme.js",
+      "language": "javascript",
+      "sizeLines": 28
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "language": "javascript",
+      "sizeLines": 14
+    },
+    {
+      "path": "start.sh",
+      "language": "bash",
+      "sizeLines": 2
+    }
+  ],
+  "totalFiles": 18,
+  "estimatedComplexity": "small"
+}

@@ -1,0 +1,1283 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "ProtoBoard",
+    "languages": [
+      "javascript",
+      "python",
+      "bash"
+    ],
+    "frameworks": [
+      "React",
+      "FastAPI",
+      "SQLAlchemy",
+      "Recharts",
+      "Vite",
+      "Uvicorn",
+      "bcrypt",
+      "python-jose"
+    ],
+    "description": "Figma-style drag-and-drop dashboard prototyping tool with JWT auth, layout persistence, and PNG export. Built with React + FastAPI.",
+    "analyzedAt": "2026-03-24T03:34:19.420Z",
+    "gitCommitHash": "888d134d12c133efffeeed5a680151749911fa2d"
+  },
+  "nodes": [
+    {
+      "id": "file:backend/app/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "backend/app/main.py",
+      "summary": "FastAPI application factory — sets up CORS, mounts router, exposes GET /api/health for health checks.",
+      "tags": [
+        "entry-point",
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/auth.py",
+      "type": "file",
+      "name": "auth.py",
+      "filePath": "backend/app/auth.py",
+      "summary": "JWT authentication utilities: bcrypt password hashing via passlib, JWT token creation/verification via python-jose, and FastAPI dependency get_current_user for route protection.",
+      "tags": [
+        "service",
+        "security",
+        "authentication"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/routes.py",
+      "type": "file",
+      "name": "routes.py",
+      "filePath": "backend/app/routes.py",
+      "summary": "All API route handlers under /api prefix — POST /auth/register, POST /auth/token (OAuth2 password flow), GET /auth/me, and full CRUD for /layouts (list, create, get, update, delete).",
+      "tags": [
+        "api-handler",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "backend/app/schemas.py",
+      "summary": "Pydantic request/response models: UserCreate, UserOut, Token, TokenData, LayoutCreate, LayoutUpdate, LayoutOut.",
+      "tags": [
+        "type-definition",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/database.py",
+      "type": "file",
+      "name": "database.py",
+      "filePath": "backend/app/database.py",
+      "summary": "SQLAlchemy ORM setup — User and Layout table models, SQLite engine, session factory, get_db dependency, and Base.metadata.create_all.",
+      "tags": [
+        "data-model",
+        "data-layer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/main.jsx",
+      "type": "file",
+      "name": "main.jsx",
+      "filePath": "frontend/src/main.jsx",
+      "summary": "React 18 root mount — attaches App to #root DOM element, sets up global error/promise rejection handlers.",
+      "tags": [
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/App.jsx",
+      "type": "file",
+      "name": "App.jsx",
+      "filePath": "frontend/src/App.jsx",
+      "summary": "Root React component managing auth state (JWT in localStorage), current layout, and component list. Handles login/logout, layout CRUD, and orchestrates the editor (Header + Sidebar + Canvas).",
+      "tags": [
+        "entry-point",
+        "component",
+        "orchestrator"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/theme.js",
+      "type": "file",
+      "name": "theme.js",
+      "filePath": "frontend/src/theme.js",
+      "summary": "Design system tokens: Nabati-influenced color palette (brown primary #4E342E, gold accent #d4af37) and DATA_COLORS array for Recharts charts.",
+      "tags": [
+        "config",
+        "design-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/components/Header.jsx",
+      "type": "file",
+      "name": "Header.jsx",
+      "filePath": "frontend/src/components/Header.jsx",
+      "summary": "Top navigation bar — ProtoBoard logo, inline-editable layout name, Save + Export PNG + Layouts + Logout buttons. Uses html-to-image for PNG export.",
+      "tags": [
+        "component",
+        "ui"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/components/Sidebar.jsx",
+      "type": "file",
+      "name": "Sidebar.jsx",
+      "filePath": "frontend/src/components/Sidebar.jsx",
+      "summary": "Component palette sidebar listing 5 draggable dashboard types (KPI Card, Bar Chart, Line Chart, Pie Chart, Data Table) sourced from componentRegistry.",
+      "tags": [
+        "component",
+        "ui",
+        "palette"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/components/Canvas.jsx",
+      "type": "file",
+      "name": "Canvas.jsx",
+      "filePath": "frontend/src/components/Canvas.jsx",
+      "summary": "Drag-and-drop canvas rendering positioned component instances with 8px grid snapping. Handles mouse drag/move/resize, selection outline, and per-component toolbar (duplicate, delete, z-order).",
+      "tags": [
+        "component",
+        "canvas",
+        "drag-drop"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/components/componentRegistry.jsx",
+      "type": "file",
+      "name": "componentRegistry.jsx",
+      "filePath": "frontend/src/components/componentRegistry.jsx",
+      "summary": "Component registry defining 5 dashboard types (KPICard, BarChart, LineChart, PieChart, DataTable) with random dummy data generators and Recharts-powered render functions.",
+      "tags": [
+        "component",
+        "registry",
+        "data-visualization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/pages/Auth.jsx",
+      "type": "file",
+      "name": "Auth.jsx",
+      "filePath": "frontend/src/pages/Auth.jsx",
+      "summary": "Login/Register page — toggles between sign-in and account creation forms, calls /api/auth/register and /api/auth/token, stores JWT in localStorage.",
+      "tags": [
+        "page",
+        "authentication"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/pages/Layouts.jsx",
+      "type": "file",
+      "name": "Layouts.jsx",
+      "filePath": "frontend/src/pages/Layouts.jsx",
+      "summary": "Layout list page — fetches user's layouts from GET /api/layouts, allows creating new layouts and deleting existing ones.",
+      "tags": [
+        "page"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/vite.config.js",
+      "type": "file",
+      "name": "vite.config.js",
+      "filePath": "frontend/vite.config.js",
+      "summary": "Vite config with React plugin and dev server proxy that forwards /api requests to FastAPI backend at localhost:8013.",
+      "tags": [
+        "config",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:combined-server.py",
+      "type": "file",
+      "name": "combined-server.py",
+      "filePath": "combined-server.py",
+      "summary": "Production server — serves React static build from frontend/dist and proxies all /api requests to FastAPI backend at 127.0.0.1:8013 with full CORS header forwarding.",
+      "tags": [
+        "server",
+        "proxy",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend-server.py",
+      "type": "file",
+      "name": "frontend-server.py",
+      "filePath": "frontend-server.py",
+      "summary": "Simple dev static file server for frontend/dist on port 8012. Not used in production (combined-server.py handles both).",
+      "tags": [
+        "server",
+        "dev-only"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:start.sh",
+      "type": "file",
+      "name": "start.sh",
+      "filePath": "start.sh",
+      "summary": "Backend startup script — activates Python venv and launches uvicorn on 127.0.0.1:8013.",
+      "tags": [
+        "config",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/database.py:User",
+      "type": "class",
+      "name": "User",
+      "filePath": "backend/app/database.py",
+      "lineRange": [
+        26,
+        31
+      ],
+      "summary": "SQLAlchemy ORM model for the users table — id (PK), username (unique), hashed_password, created_at, and one-to-many relationship to Layout via user_id FK.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/database.py:Layout",
+      "type": "class",
+      "name": "Layout",
+      "filePath": "backend/app/database.py",
+      "lineRange": [
+        34,
+        41
+      ],
+      "summary": "SQLAlchemy ORM model for the layouts table — id (PK), user_id FK, name, components (JSON list), timestamps, and back_populates relationship to User.",
+      "tags": [
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:combined-server.py:ProxyHTTPRequestHandler",
+      "type": "class",
+      "name": "ProxyHTTPRequestHandler",
+      "filePath": "combined-server.py",
+      "lineRange": [
+        16,
+        92
+      ],
+      "summary": "Custom Python HTTP handler combining static file serving of the React build with reverse-proxying of /api requests to FastAPI, with full CORS support.",
+      "tags": [
+        "server",
+        "proxy"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "func:backend/app/routes.py:register",
+      "type": "function",
+      "name": "register",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        31,
+        38
+      ],
+      "summary": "POST /api/auth/register — checks for username uniqueness then creates a new User with a bcrypt-hashed password.",
+      "tags": [
+        "api-handler",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:login",
+      "type": "function",
+      "name": "login",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        40,
+        45
+      ],
+      "summary": "POST /api/auth/token — OAuth2 password grant login, verifies credentials, returns a 24-hour JWT access token.",
+      "tags": [
+        "api-handler",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:me",
+      "type": "function",
+      "name": "me",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        48,
+        51
+      ],
+      "summary": "GET /api/auth/me — returns the currently authenticated user profile via the get_current_user dependency.",
+      "tags": [
+        "api-handler",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:list_layouts",
+      "type": "function",
+      "name": "list_layouts",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        55,
+        57
+      ],
+      "summary": "GET /api/layouts — returns all layouts belonging to the authenticated user, ordered by updated_at descending.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:create_layout",
+      "type": "function",
+      "name": "create_layout",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        60,
+        66
+      ],
+      "summary": "POST /api/layouts — creates a new Layout for the current user with an empty components array and returns the created layout.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:get_layout",
+      "type": "function",
+      "name": "get_layout",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        69,
+        75
+      ],
+      "summary": "GET /api/layouts/{id} — returns a single layout only if it belongs to the authenticated user, else 404.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:update_layout",
+      "type": "function",
+      "name": "update_layout",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        78,
+        88
+      ],
+      "summary": "PUT /api/layouts/{id} — updates layout name and/or components array, commits to DB and returns the updated layout.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/routes.py:delete_layout",
+      "type": "function",
+      "name": "delete_layout",
+      "filePath": "backend/app/routes.py",
+      "lineRange": [
+        91,
+        98
+      ],
+      "summary": "DELETE /api/layouts/{id} — deletes a layout owned by the authenticated user, returns {ok: true}.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/auth.py:verify_password",
+      "type": "function",
+      "name": "verify_password",
+      "filePath": "backend/app/auth.py",
+      "lineRange": [
+        14,
+        15
+      ],
+      "summary": "Verifies a plain-text password against a bcrypt hash using passlib CryptContext.",
+      "tags": [
+        "service",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/auth.py:get_password_hash",
+      "type": "function",
+      "name": "get_password_hash",
+      "filePath": "backend/app/auth.py",
+      "lineRange": [
+        17,
+        18
+      ],
+      "summary": "Hashes a password using bcrypt via passlib CryptContext for secure storage.",
+      "tags": [
+        "service",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/auth.py:create_access_token",
+      "type": "function",
+      "name": "create_access_token",
+      "filePath": "backend/app/auth.py",
+      "lineRange": [
+        20,
+        25
+      ],
+      "summary": "Creates a signed JWT access token with configurable expiration (default 24h) using python-jose HS256.",
+      "tags": [
+        "service",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:backend/app/auth.py:get_current_user",
+      "type": "function",
+      "name": "get_current_user",
+      "filePath": "backend/app/auth.py",
+      "lineRange": [
+        27,
+        41
+      ],
+      "summary": "FastAPI Depends() dependency — decodes the JWT Bearer token from Authorization header and returns the authenticated User ORM object.",
+      "tags": [
+        "service",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:combined-server.py:proxy",
+      "type": "function",
+      "name": "proxy",
+      "filePath": "combined-server.py",
+      "lineRange": [
+        56,
+        78
+      ],
+      "summary": "Proxies HTTP requests to the FastAPI backend — forwards method, headers, and body; handles CORS origin; returns backend response to browser.",
+      "tags": [
+        "server",
+        "proxy"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:loadLayout",
+      "type": "function",
+      "name": "loadLayout",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        31,
+        36
+      ],
+      "summary": "Sets the active layout from the layouts list, populates component state, and switches to editor view.",
+      "tags": [
+        "component",
+        "state"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:createNewLayout",
+      "type": "function",
+      "name": "createNewLayout",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        38,
+        45
+      ],
+      "summary": "POSTs to /api/layouts to create a new empty layout, then calls loadLayout with the response.",
+      "tags": [
+        "component",
+        "api"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:handleSave",
+      "type": "function",
+      "name": "handleSave",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        47,
+        54
+      ],
+      "summary": "PUTs the current layout name and components array to /api/layouts/{id} with the JWT auth header.",
+      "tags": [
+        "component",
+        "api"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:handleAddComponent",
+      "type": "function",
+      "name": "handleAddComponent",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        56,
+        68
+      ],
+      "summary": "Adds a new component to the canvas state — generates unique ID, random position, default size from component type, and calls the data generator function.",
+      "tags": [
+        "component",
+        "drag-drop"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:handleUpdateComponent",
+      "type": "function",
+      "name": "handleUpdateComponent",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        70,
+        72
+      ],
+      "summary": "Updates a component's properties (x, y, w, h, data) by mapping over the components array.",
+      "tags": [
+        "component"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:handleDeleteComponent",
+      "type": "function",
+      "name": "handleDeleteComponent",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        74,
+        76
+      ],
+      "summary": "Filters out a component by ID from the components state array.",
+      "tags": [
+        "component"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/App.jsx:handleDuplicateComponent",
+      "type": "function",
+      "name": "handleDuplicateComponent",
+      "filePath": "frontend/src/App.jsx",
+      "lineRange": [
+        78,
+        84
+      ],
+      "summary": "Clones a component with a new unique ID and offsets position by 20px in both x and y.",
+      "tags": [
+        "component"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/Canvas.jsx:handleMouseDown",
+      "type": "function",
+      "name": "handleMouseDown",
+      "filePath": "frontend/src/components/Canvas.jsx",
+      "lineRange": [
+        25,
+        30
+      ],
+      "summary": "Initiates drag for a component — records offset from canvas origin and sets dragging state to component ID.",
+      "tags": [
+        "canvas",
+        "drag-drop"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/Canvas.jsx:handleMouseMove",
+      "type": "function",
+      "name": "handleMouseMove",
+      "filePath": "frontend/src/components/Canvas.jsx",
+      "lineRange": [
+        32,
+        47
+      ],
+      "summary": "Mouse move handler during drag or resize — updates position/size with 8px grid snapping. Supports all 8 resize directions.",
+      "tags": [
+        "canvas",
+        "drag-drop"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/Canvas.jsx:handleMouseUp",
+      "type": "function",
+      "name": "handleMouseUp",
+      "filePath": "frontend/src/components/Canvas.jsx",
+      "lineRange": [
+        49,
+        51
+      ],
+      "summary": "Ends drag or resize interaction by clearing dragging and resizing state.",
+      "tags": [
+        "canvas"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/Canvas.jsx:handleResizeMouseDown",
+      "type": "function",
+      "name": "handleResizeMouseDown",
+      "filePath": "frontend/src/components/Canvas.jsx",
+      "lineRange": [
+        53,
+        56
+      ],
+      "summary": "Initiates resize for a component in a specified cardinal or diagonal direction (n/s/e/w/ne/nw/se/sw).",
+      "tags": [
+        "canvas",
+        "drag-drop"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/Header.jsx:handleExport",
+      "type": "function",
+      "name": "handleExport",
+      "filePath": "frontend/src/components/Header.jsx",
+      "lineRange": [
+        11,
+        22
+      ],
+      "summary": "Captures the .canvas-area DOM element as a PNG at 2x pixel ratio using html-to-image and triggers browser download.",
+      "tags": [
+        "component",
+        "export"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "func:frontend/src/components/componentRegistry.jsx:renderComponent",
+      "type": "function",
+      "name": "renderComponent",
+      "filePath": "frontend/src/components/componentRegistry.jsx",
+      "lineRange": [
+        152,
+        161
+      ],
+      "summary": "Dispatches a component type string to the correct React render function — KPICard, BarChartComponent, LineChartComponent, PieChartComponent, or TableComponent.",
+      "tags": [
+        "component",
+        "registry"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routes.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "file:backend/app/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.jsx",
+      "target": "file:frontend/src/App.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/pages/Auth.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/pages/Layouts.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/components/Header.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/components/Sidebar.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/components/Canvas.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "file:frontend/src/components/componentRegistry.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/Header.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/Sidebar.jsx",
+      "target": "file:frontend/src/components/componentRegistry.jsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/Sidebar.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/components/componentRegistry.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/pages/Auth.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/pages/Layouts.jsx",
+      "target": "file:frontend/src/theme.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/database.py",
+      "target": "class:backend/app/database.py:User",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/database.py",
+      "target": "class:backend/app/database.py:Layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:combined-server.py",
+      "target": "class:combined-server.py:ProxyHTTPRequestHandler",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:combined-server.py",
+      "target": "func:combined-server.py:proxy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:register",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:login",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:me",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:list_layouts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:create_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:get_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:update_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routes.py",
+      "target": "func:backend/app/routes.py:delete_layout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "func:backend/app/auth.py:verify_password",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "func:backend/app/auth.py:get_password_hash",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "func:backend/app/auth.py:create_access_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/auth.py",
+      "target": "func:backend/app/auth.py:get_current_user",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:loadLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:createNewLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:handleSave",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:handleAddComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:handleUpdateComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:handleDeleteComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/App.jsx",
+      "target": "func:frontend/src/App.jsx:handleDuplicateComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "func:frontend/src/components/Canvas.jsx:handleMouseDown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "func:frontend/src/components/Canvas.jsx:handleMouseMove",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "func:frontend/src/components/Canvas.jsx:handleMouseUp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/Canvas.jsx",
+      "target": "func:frontend/src/components/Canvas.jsx:handleResizeMouseDown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/Header.jsx",
+      "target": "func:frontend/src/components/Header.jsx:handleExport",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/components/componentRegistry.jsx",
+      "target": "func:frontend/src/components/componentRegistry.jsx:renderComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "func:backend/app/routes.py:register",
+      "target": "func:backend/app/auth.py:get_password_hash",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "func:backend/app/routes.py:login",
+      "target": "func:backend/app/auth.py:verify_password",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "func:backend/app/routes.py:login",
+      "target": "func:backend/app/auth.py:create_access_token",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "func:backend/app/routes.py:me",
+      "target": "func:backend/app/auth.py:get_current_user",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "func:backend/app/routes.py:list_layouts",
+      "target": "class:backend/app/database.py:Layout",
+      "type": "reads_from",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:backend/app/routes.py:create_layout",
+      "target": "class:backend/app/database.py:Layout",
+      "type": "writes_to",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:backend/app/routes.py:update_layout",
+      "target": "class:backend/app/database.py:Layout",
+      "type": "writes_to",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:backend/app/routes.py:delete_layout",
+      "target": "class:backend/app/database.py:Layout",
+      "type": "writes_to",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:backend/app/routes.py:register",
+      "target": "class:backend/app/database.py:User",
+      "type": "reads_from",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:backend/app/routes.py:login",
+      "target": "class:backend/app/database.py:User",
+      "type": "reads_from",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "func:frontend/src/components/Canvas.jsx:handleMouseDown",
+      "target": "func:frontend/src/components/componentRegistry.jsx:renderComponent",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:entry-points",
+      "name": "Entry Points",
+      "description": "Application entry points and startup scripts",
+      "nodeIds": [
+        "file:backend/app/main.py",
+        "file:frontend/src/main.jsx",
+        "file:start.sh",
+        "file:combined-server.py",
+        "file:frontend-server.py",
+        "file:frontend/vite.config.js"
+      ]
+    },
+    {
+      "id": "layer:frontend-ui",
+      "name": "Frontend UI",
+      "description": "React components and pages — the user-facing drag-drop dashboard builder UI",
+      "nodeIds": [
+        "file:frontend/src/App.jsx",
+        "file:frontend/src/components/Header.jsx",
+        "file:frontend/src/components/Sidebar.jsx",
+        "file:frontend/src/components/Canvas.jsx",
+        "file:frontend/src/components/componentRegistry.jsx",
+        "file:frontend/src/pages/Auth.jsx",
+        "file:frontend/src/pages/Layouts.jsx"
+      ]
+    },
+    {
+      "id": "layer:frontend-utilities",
+      "name": "Frontend Utilities",
+      "description": "Frontend configuration and design tokens",
+      "nodeIds": [
+        "file:frontend/src/theme.js"
+      ]
+    },
+    {
+      "id": "layer:backend-api",
+      "name": "Backend API Layer",
+      "description": "FastAPI route handlers and JWT authentication",
+      "nodeIds": [
+        "file:backend/app/routes.py",
+        "file:backend/app/auth.py"
+      ]
+    },
+    {
+      "id": "layer:backend-data",
+      "name": "Backend Data Layer",
+      "description": "Pydantic schemas and SQLAlchemy ORM models",
+      "nodeIds": [
+        "file:backend/app/schemas.py",
+        "file:backend/app/database.py",
+        "class:backend/app/database.py:User",
+        "class:backend/app/database.py:Layout"
+      ]
+    },
+    {
+      "id": "layer:backend-server",
+      "name": "Backend Server",
+      "description": "Production server combining static file serving and API proxy",
+      "nodeIds": [
+        "file:combined-server.py",
+        "class:combined-server.py:ProxyHTTPRequestHandler",
+        "func:combined-server.py:proxy"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "FastAPI backend entry point",
+      "description": "backend/app/main.py creates the FastAPI app, adds CORS middleware, and mounts the router at /api. Every request flows through routes.py which defines all endpoints.",
+      "nodeIds": [
+        "file:backend/app/main.py",
+        "file:backend/app/routes.py"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "JWT authentication system",
+      "description": "auth.py provides bcrypt password hashing, JWT token creation/verification via python-jose, and the get_current_user FastAPI dependency that protects all /layouts and /auth/me endpoints.",
+      "nodeIds": [
+        "file:backend/app/auth.py",
+        "func:backend/app/auth.py:get_current_user",
+        "func:backend/app/auth.py:create_access_token"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Data models",
+      "description": "database.py defines User and Layout SQLAlchemy models. User has a one-to-many relationship to Layout via user_id FK. schemas.py provides Pydantic validation for all request/response bodies.",
+      "nodeIds": [
+        "class:backend/app/database.py:User",
+        "class:backend/app/database.py:Layout",
+        "file:backend/app/schemas.py"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Layout CRUD endpoints",
+      "description": "routes.py implements full layout lifecycle: POST /api/auth/register, POST /api/auth/token, GET /api/auth/me, and GET/POST/PUT/DELETE /api/layouts. All mutations commit immediately to SQLite.",
+      "nodeIds": [
+        "func:backend/app/routes.py:register",
+        "func:backend/app/routes.py:login",
+        "func:backend/app/routes.py:list_layouts",
+        "func:backend/app/routes.py:create_layout",
+        "func:backend/app/routes.py:update_layout",
+        "func:backend/app/routes.py:delete_layout"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "React frontend entry point",
+      "description": "main.jsx mounts the React 18 app. App.jsx is the root component — manages auth state (JWT in localStorage), current layout, and conditionally renders Auth, Layouts, or the drag-drop editor.",
+      "nodeIds": [
+        "file:frontend/src/main.jsx",
+        "file:frontend/src/App.jsx"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Design system",
+      "description": "theme.js exports the Nabati-inspired color palette (primary brown #4E342E, accent gold #d4af37) and DATA_COLORS array. All React components import from here for visual consistency.",
+      "nodeIds": [
+        "file:frontend/src/theme.js"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Drag-and-drop canvas",
+      "description": "Canvas.jsx is the core editor — renders positioned component instances with 8px grid snapping. Handles mouse drag/move/resize interactions. Components are rendered via componentRegistry renderComponent function.",
+      "nodeIds": [
+        "file:frontend/src/components/Canvas.jsx",
+        "file:frontend/src/components/componentRegistry.jsx"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Dashboard component library",
+      "description": "componentRegistry.jsx defines 5 component types: KPICard, BarChartComponent, LineChartComponent, PieChartComponent, DataTable. Each has a data generator and Recharts-powered render function with Nabati-themed styling.",
+      "nodeIds": [
+        "file:frontend/src/components/componentRegistry.jsx"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Production server architecture",
+      "description": "combined-server.py serves the React static build AND proxies /api requests to FastAPI in one process. It handles CORS headers so the browser can talk to both from the same origin at proto.revinoba.cc.",
+      "nodeIds": [
+        "file:combined-server.py",
+        "class:combined-server.py:ProxyHTTPRequestHandler",
+        "func:combined-server.py:proxy"
+      ]
+    }
+  ]
+}
