@@ -83,12 +83,31 @@ export default function App() {
     });
   }, []);
 
+  // ── Ref to always have the latest handleSave ─────────────────────────
+  const handleSaveRef = useRef(null);
+  const handleSave = useCallback(async () => {
+    if (!currentLayout || isSaving) return;
+    setIsSaving(true);
+    setIsSaved(false);
+    const wasUntitled = layoutName.trim() === "Untitled";
+    try {
+      await axios.put(`/api/layouts/${currentLayout.id}`, { name: layoutName, components }, { headers: { Authorization: `Bearer ${token}` } });
+      setIsSaved(true);
+      setLastSavedAt(new Date());
+      document.title = layoutName ? `${layoutName} — ProtoBoard` : "ProtoBoard";
+      if (wasUntitled) setShowRenameHint(true);
+    } catch (err) { console.error(err); }
+    finally { setIsSaving(false); }
+  }, [currentLayout, layoutName, components, token, isSaving]);
+  // Keep ref in sync with the latest handleSave
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+
   // ── Ctrl+S / Cmd+S and Ctrl+Z / Cmd+Z keyboard shortcuts ────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
-        handleSave();
+        handleSaveRef.current?.();
       }
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
@@ -102,7 +121,7 @@ export default function App() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleSave]);
+  }, []); // intentionally empty — uses ref, stays stable
 
   const loadLayout = (layout) => {
     setCurrentLayout(layout);
@@ -128,21 +147,6 @@ export default function App() {
       loadLayout(res.data);
     } catch (err) { console.error(err); }
   };
-
-  const handleSave = useCallback(async () => {
-    if (!currentLayout || isSaving) return;
-    setIsSaving(true);
-    setIsSaved(false);
-    const wasUntitled = layoutName.trim() === "Untitled";
-    try {
-      await axios.put(`/api/layouts/${currentLayout.id}`, { name: layoutName, components }, { headers: { Authorization: `Bearer ${token}` } });
-      setIsSaved(true);
-      setLastSavedAt(new Date());
-      document.title = layoutName ? `${layoutName} — ProtoBoard` : "ProtoBoard";
-      if (wasUntitled) setShowRenameHint(true);
-    } catch (err) { console.error(err); }
-    finally { setIsSaving(false); }
-  }, [currentLayout, layoutName, components, token, isSaving]);
 
   const handleAddComponent = useCallback((compType) => {
     setComponents((prev) => {
