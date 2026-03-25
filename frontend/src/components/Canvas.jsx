@@ -44,6 +44,9 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
 
   const handleResizePointerDown = useCallback((e, comp, dir) => {
     e.stopPropagation();
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      activeTouchId.current = e.changedTouches[0].identifier;
+    }
     updateCanvasRect();
     setSelected(comp.id);
     const pos = pointerPos(e);
