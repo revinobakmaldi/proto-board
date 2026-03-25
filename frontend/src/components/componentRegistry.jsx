@@ -3,6 +3,9 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
+import {
+  ChartLineUp, ChartBar, ChartLine, ChartPie, Table,
+} from "@phosphor-icons/react";
 import { THEME, DATA_COLORS } from "../theme";
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -279,12 +282,20 @@ export const TableComponent = ({ data }) => {
 
 // ── Component Registry ─────────────────────────────────────
 export const COMPONENT_TYPES = [
-  { type: "kpi", label: "KPI Card", icon: "📊", defaultSize: { w: 280, h: 200 }, defaultDataFn: KPICardData },
-  { type: "bar", label: "Bar Chart", icon: "📈", defaultSize: { w: 380, h: 240 }, defaultDataFn: BarChartData },
-  { type: "line", label: "Line Chart", icon: "📉", defaultSize: { w: 380, h: 240 }, defaultDataFn: LineChartData },
-  { type: "pie", label: "Pie Chart", icon: "🍩", defaultSize: { w: 300, h: 240 }, defaultDataFn: PieChartData },
-  { type: "table", label: "Data Table", icon: "📋", defaultSize: { w: 500, h: 280 }, defaultDataFn: TableData },
+  { type: "kpi", label: "KPI Card", defaultSize: { w: 280, h: 200 }, defaultDataFn: KPICardData },
+  { type: "bar", label: "Bar Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: BarChartData },
+  { type: "line", label: "Line Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: LineChartData },
+  { type: "pie", label: "Pie Chart", defaultSize: { w: 300, h: 240 }, defaultDataFn: PieChartData },
+  { type: "table", label: "Data Table", defaultSize: { w: 500, h: 280 }, defaultDataFn: TableData },
 ];
+
+export const COMPONENT_ICONS = {
+  kpi:   <ChartLineUp size={18} weight="duotone" />,
+  bar:   <ChartBar size={18} weight="duotone" />,
+  line:  <ChartLine size={18} weight="duotone" />,
+  pie:   <ChartPie size={18} weight="duotone" />,
+  table: <Table size={18} weight="duotone" />,
+};
 
 export const renderComponent = (type, data) => {
   // Guard: if data is undefined or malformed, render a safe placeholder
