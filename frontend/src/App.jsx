@@ -73,6 +73,18 @@ export default function App() {
     }
   }, [token]);
 
+  // ── Ctrl+S / Cmd+S keyboard shortcut ────────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleSave]);
+
   const loadLayout = (layout) => {
     setCurrentLayout(layout);
     setLayoutName(layout.name);
