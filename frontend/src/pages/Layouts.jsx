@@ -3,7 +3,7 @@ import axios from "axios";
 import { THEME } from "../theme";
 import { Plus, ArrowLeft, Trash, Clock } from "@phosphor-icons/react";
 
-export default function Layouts({ token, onBack, onSelect }) {
+export default function Layouts({ token, onBack, onSelect, onNewLayout }) {
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState(null); // id of layout pending deletion
@@ -17,6 +17,8 @@ export default function Layouts({ token, onBack, onSelect }) {
 
   const handleCreate = async () => {
     try {
+      // Clear stale canvas content before navigating to the new layout
+      onNewLayout();
       const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
       onSelect(res.data);
     } catch (err) {

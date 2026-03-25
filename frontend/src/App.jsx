@@ -115,6 +115,8 @@ export default function App() {
 
   const createNewLayout = async () => {
     try {
+      // Clear canvas immediately before API call so new layout starts empty
+      setComponents([]);
       setHistory([]);
       const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
       loadLayout(res.data);
@@ -203,7 +205,7 @@ export default function App() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   if (!token) return <Auth onLogin={(tok) => setToken(tok)} />;
-  if (view === "layouts") return <Layouts token={token} onBack={() => setView("editor")} onSelect={loadLayout} />;
+  if (view === "layouts") return <Layouts token={token} onBack={() => setView("editor")} onSelect={loadLayout} onNewLayout={() => { setComponents([]); setHistory([]); }} />;
 
   if (showLogoutConfirm) return (
     <ConfirmDialog
