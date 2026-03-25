@@ -26,8 +26,12 @@ export default function Layouts({ token, onBack, onSelect }) {
   const handleDelete = async (id, e) => {
     e.stopPropagation();
     if (!confirm("Delete this layout?")) return;
-    await axios.delete(`/api/layouts/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-    setLayouts(layouts.filter((l) => l.id !== id));
+    try {
+      await axios.delete(`/api/layouts/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setLayouts(layouts.filter((l) => l.id !== id));
+    } catch (err) {
+      alert("Failed to delete layout. Please try again.");
+    }
   };
 
   const formatDate = (d) => new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });

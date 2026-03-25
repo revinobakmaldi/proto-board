@@ -9,6 +9,9 @@ import { THEME } from "./theme";
 
 let nextId = 1;
 const genId = () => nextId++;
+const syncNextId = (components) => {
+  if (components?.length > 0) nextId = Math.max(...components.map(c => c.id)) + 1;
+};
 
 export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -22,6 +25,8 @@ export default function App() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const canvasAreaRef = useRef(null);
   const canvasRef = useRef(null);
+  const historyRef = useRef([]);
+  const handleSaveRef = useRef(null);
 
   useEffect(() => {
     if (token && !currentLayout && view === "editor") {
@@ -35,6 +40,8 @@ export default function App() {
   }, [token]);
 
   const loadLayout = (layout) => {
+    syncNextId(layout.components);
+    historyRef.current = [];
     setCurrentLayout(layout);
     setLayoutName(layout.name);
     setComponents(layout.components || []);
@@ -62,6 +69,27 @@ export default function App() {
     finally { setIsSaving(false); }
   }, [currentLayout, layoutName, components, token, isSaving]);
 
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+
+  useEffect(() => {
+    if (!token) return;
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleSaveRef.current?.();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (historyRef.current.length > 0) {
+          setComponents(historyRef.current.pop());
+          setIsSaved(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [token]);
+
   const handleAddComponent = useCallback((compType) => {
     const comp = {
       id: genId(),
@@ -72,8 +100,8 @@ export default function App() {
       h: compType.defaultSize.h,
       data: compType.defaultDataFn(),
     };
+    setComponents((prev) => { historyRef.current.push(prev); return [...prev, comp]; });
     setIsSaved(false);
-    setComponents((prev) => [...prev, comp]);
     setPickerOpen(false);
   }, []);
 
@@ -83,17 +111,19 @@ export default function App() {
   }, []);
 
   const handleDeleteComponent = useCallback((id) => {
+    setComponents((prev) => { historyRef.current.push(prev); return prev.filter((c) => c.id !== id); });
     setIsSaved(false);
-    setComponents((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
   const handleDuplicateComponent = useCallback((id) => {
-    const comp = components.find((c) => c.id === id);
-    if (!comp) return;
-    const newComp = { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } };
+    setComponents((prev) => {
+      const comp = prev.find((c) => c.id === id);
+      if (!comp) return prev;
+      historyRef.current.push(prev);
+      return [...prev, { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } }];
+    });
     setIsSaved(false);
-    setComponents((prev) => [...prev, newComp]);
-  }, [components]);
+  }, []);
 
   const handleLogout = () => {
     setToken(null); setCurrentLayout(null); setComponents([]);
@@ -145,7 +175,7 @@ export default function App() {
 
         {isSaved && lastSavedAt && (
           <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>
-            Saved {Math.floor((Date.now() - lastSavedAt) / 60000)}m ago
+            Saved {Date.now() - lastSavedAt < 60000 ? "just now" : `${Math.floor((Date.now() - lastSavedAt) / 60000)}m ago`}
           </span>
         )}
 
@@ -253,7 +283,7 @@ export default function App() {
         {/* ── Component Picker ──────────────────── */}
         {pickerOpen && (
           <div style={{
-            position: "absolute", top: 60, left: 16,
+            position: "absolute", top: 72, left: 256,
             background: "#fff",
             border: `1px solid ${THEME.border}`,
             borderRadius: 10, padding: "8px",
