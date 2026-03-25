@@ -10,6 +10,44 @@ import { THEME } from "./theme";
 let nextId = 1;
 const genId = () => nextId++;
 
+// ── Shared confirmation dialog ─────────────────────────────────────────────
+function ConfirmDialog({ title, onConfirm, onCancel }) {
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 1000,
+      background: "rgba(0,0,0,0.55)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 12,
+        padding: "28px 32px", minWidth: 300, maxWidth: 380,
+        boxShadow: "0 16px 48px rgba(0,0,0,0.25)",
+        fontFamily: "Segoe UI, sans-serif",
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: THEME.primary, marginBottom: 8 }}>
+          {title}
+        </div>
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
+          <button onClick={onCancel} style={{
+            padding: "8px 18px",
+            background: THEME.surface, border: `1px solid ${THEME.border}`,
+            borderRadius: 7, fontSize: 13, fontWeight: 600,
+            color: THEME.primary, cursor: "pointer",
+            fontFamily: "Segoe UI",
+          }}>Cancel</button>
+          <button onClick={onConfirm} style={{
+            padding: "8px 18px",
+            background: THEME.bad, border: "none",
+            borderRadius: 7, fontSize: 13, fontWeight: 600,
+            color: "#fff", cursor: "pointer",
+            fontFamily: "Segoe UI",
+          }}>Confirm</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [view, setView] = useState("editor");
@@ -20,6 +58,7 @@ export default function App() {
   const [isSaved, setIsSaved] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const canvasAreaRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -96,6 +135,10 @@ export default function App() {
   }, [components]);
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     setToken(null); setCurrentLayout(null); setComponents([]);
     localStorage.removeItem("token");
   };
@@ -117,6 +160,14 @@ export default function App() {
 
   if (!token) return <Auth onLogin={(tok) => setToken(tok)} />;
   if (view === "layouts") return <Layouts token={token} onBack={() => setView("editor")} onSelect={loadLayout} />;
+
+  if (showLogoutConfirm) return (
+    <ConfirmDialog
+      title="Logout? Unsaved changes will be lost."
+      onConfirm={confirmLogout}
+      onCancel={() => setShowLogoutConfirm(false)}
+    />
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#1a1a1a", fontFamily: "Segoe UI", overflow: "hidden" }}>
