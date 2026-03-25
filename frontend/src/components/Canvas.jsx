@@ -20,7 +20,6 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
   const [resizing, setResizing] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isInteracting, setIsInteracting] = useState(false);
-  const [hoveredId, setHoveredId] = useState(null);
   const activeTouchId = useRef(null);
   const canvasRef = useRef(null);
   const canvasRect = useRef(null);
@@ -144,8 +143,6 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
         {components.map((comp) => {
           const isSelected = selected === comp.id;
           const isDragging = dragging === comp.id;
-          const isHovered = hoveredId === comp.id;
-          const showHandles = isSelected || isHovered;
           return (
             <div
               key={comp.id}
@@ -162,8 +159,6 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
               onMouseDown={(e) => { e.stopPropagation(); handlePointerDown(e, comp); }}
               onTouchStart={(e) => handleTouchStart(e, comp)}
               onClick={(e) => { e.stopPropagation(); setSelected(comp.id); }}
-              onMouseEnter={() => setHoveredId(comp.id)}
-              onMouseLeave={() => setHoveredId(null)}
             >
               {/* Content */}
               <div style={{ width: "100%", height: "100%", pointerEvents: "none" }}>
@@ -171,42 +166,12 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
               </div>
 
               {/* Selection border */}
-              {showHandles && (
+              {isSelected && (
                 <div style={{
                   position: "absolute", inset: -2,
                   border: `2px dashed ${THEME.accent}`,
                   borderRadius: 6, pointerEvents: "none",
                 }} />
-              )}
-
-              {/* Delete button — top-right corner, shown when selected */}
-              {isSelected && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onDelete(comp.id); }}
-                  title="Remove"
-                  style={{
-                    position: "absolute",
-                    top: -14,
-                    right: -14,
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    background: THEME.bad,
-                    border: "2px solid #fff",
-                    color: "#fff",
-                    fontSize: 14,
-                    lineHeight: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    zIndex: 30,
-                    padding: 0,
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  ×
-                </button>
               )}
 
               {/* Toolbar below */}
@@ -232,7 +197,7 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
               )}
 
               {/* Corner handles */}
-              {showHandles && ["se", "sw", "ne", "nw"].map((dir) => {
+              {isSelected && ["se", "sw", "ne", "nw"].map((dir) => {
                 const r = 8;
                 const pos = {
                   se: { right: -r, bottom: -r },
@@ -246,12 +211,10 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
                     onMouseDown={(e) => { e.stopPropagation(); handleResizePointerDown(e, comp, dir); }}
                     onTouchStart={(e) => { e.stopPropagation(); handleResizePointerDown(e, comp, dir); }}
                     style={{
-                      position: "absolute", width: 8, height: 8,
-                      background: THEME.accent, borderRadius: 2,
-                      border: "1px solid rgba(255,255,255,0.5)",
-                      cursor: { se: "nwse-resize", sw: "nesw-resize", ne: "nesw-resize", nw: "nwse-resize" }[dir],
+                      position: "absolute", width: 16, height: 16,
+                      background: "#fff", borderRadius: 3,
+                      cursor: { se: "se-resize", sw: "sw-resize", ne: "ne-resize", nw: "nw-resize" }[dir],
                       zIndex: 21,
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
                       ...pos,
                     }}
                   />

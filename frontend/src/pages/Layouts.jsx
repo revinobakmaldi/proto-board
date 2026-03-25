@@ -3,10 +3,9 @@ import axios from "axios";
 import { THEME } from "../theme";
 import { Plus, ArrowLeft, Trash, Clock } from "@phosphor-icons/react";
 
-export default function Layouts({ token, onBack, onSelect, onNewLayout }) {
+export default function Layouts({ token, onBack, onSelect }) {
   const [layouts, setLayouts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deleteTarget, setDeleteTarget] = useState(null); // id of layout pending deletion
 
   useEffect(() => {
     axios.get("/api/layouts", { headers: { Authorization: `Bearer ${token}` } })
@@ -17,8 +16,6 @@ export default function Layouts({ token, onBack, onSelect, onNewLayout }) {
 
   const handleCreate = async () => {
     try {
-      // Clear stale canvas content before navigating to the new layout
-      onNewLayout();
       const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
       onSelect(res.data);
     } catch (err) {
@@ -26,16 +23,15 @@ export default function Layouts({ token, onBack, onSelect, onNewLayout }) {
     }
   };
 
-  const handleDelete = (id, e) => {
+  const handleDelete = async (id, e) => {
     e.stopPropagation();
-    setDeleteTarget(id);
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteTarget) return;
-    await axios.delete(`/api/layouts/${deleteTarget}`, { headers: { Authorization: `Bearer ${token}` } });
-    setLayouts(layouts.filter((l) => l.id !== deleteTarget));
-    setDeleteTarget(null);
+    if (!confirm("Delete this layout?")) return;
+    try {
+      await axios.delete(`/api/layouts/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setLayouts(layouts.filter((l) => l.id !== id));
+    } catch (err) {
+      alert("Failed to delete layout. Please try again.");
+    }
   };
 
   const formatDate = (d) => new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
@@ -92,41 +88,6 @@ export default function Layouts({ token, onBack, onSelect, onNewLayout }) {
               </button>
             </div>
           ))}
-        </div>
-      )}
-
-      {deleteTarget !== null && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 1000,
-          background: "rgba(0,0,0,0.55)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <div style={{
-            background: "#fff", borderRadius: 12,
-            padding: "28px 32px", minWidth: 300, maxWidth: 380,
-            boxShadow: "0 16px 48px rgba(0,0,0,0.25)",
-            fontFamily: "Segoe UI, sans-serif",
-          }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: THEME.primary, marginBottom: 8 }}>
-              Delete this layout? This cannot be undone.
-            </div>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-              <button onClick={() => setDeleteTarget(null)} style={{
-                padding: "8px 18px",
-                background: THEME.surface, border: `1px solid ${THEME.border}`,
-                borderRadius: 7, fontSize: 13, fontWeight: 600,
-                color: THEME.primary, cursor: "pointer",
-                fontFamily: "Segoe UI",
-              }}>Cancel</button>
-              <button onClick={confirmDelete} style={{
-                padding: "8px 18px",
-                background: THEME.bad, border: "none",
-                borderRadius: 7, fontSize: 13, fontWeight: 600,
-                color: "#fff", cursor: "pointer",
-                fontFamily: "Segoe UI",
-              }}>Delete</button>
-            </div>
-          </div>
         </div>
       )}
     </div>

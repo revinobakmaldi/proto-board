@@ -9,44 +9,9 @@ import { THEME } from "./theme";
 
 let nextId = 1;
 const genId = () => nextId++;
-
-// ── Shared confirmation dialog ─────────────────────────────────────────────
-function ConfirmDialog({ title, onConfirm, onCancel }) {
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }}>
-      <div style={{
-        background: "#fff", borderRadius: 12,
-        padding: "28px 32px", minWidth: 300, maxWidth: 380,
-        boxShadow: "0 16px 48px rgba(0,0,0,0.25)",
-        fontFamily: "Segoe UI, sans-serif",
-      }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: THEME.primary, marginBottom: 8 }}>
-          {title}
-        </div>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 20 }}>
-          <button onClick={onCancel} style={{
-            padding: "8px 18px",
-            background: THEME.surface, border: `1px solid ${THEME.border}`,
-            borderRadius: 7, fontSize: 13, fontWeight: 600,
-            color: THEME.primary, cursor: "pointer",
-            fontFamily: "Segoe UI",
-          }}>Cancel</button>
-          <button onClick={onConfirm} style={{
-            padding: "8px 18px",
-            background: THEME.bad, border: "none",
-            borderRadius: 7, fontSize: 13, fontWeight: 600,
-            color: "#fff", cursor: "pointer",
-            fontFamily: "Segoe UI",
-          }}>Confirm</button>
-        </div>
-      </div>
-    </div>
-  );
-}
+const syncNextId = (components) => {
+  if (components?.length > 0) nextId = Math.max(...components.map(c => c.id)) + 1;
+};
 
 export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -54,15 +19,14 @@ export default function App() {
   const [currentLayout, setCurrentLayout] = useState(null);
   const [layoutName, setLayoutName] = useState("Untitled");
   const [components, setComponents] = useState([]);
-  const [history, setHistory] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [showRenameHint, setShowRenameHint] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const canvasAreaRef = useRef(null);
   const canvasRef = useRef(null);
+  const historyRef = useRef([]);
+  const handleSaveRef = useRef(null);
 
   useEffect(() => {
     if (token && !currentLayout && view === "editor") {
@@ -75,130 +39,94 @@ export default function App() {
     }
   }, [token]);
 
-  // ── Push current components to history ──────────────────────────────
-  const pushHistory = useCallback((currentComponents) => {
-    setHistory((prev) => {
-      const next = [...prev, currentComponents];
-      return next.length > 20 ? next.slice(next.length - 20) : next;
-    });
-  }, []);
-
-  // ── Ref to always have the latest handleSave ─────────────────────────
-  const handleSaveRef = useRef(null);
-  const handleSave = useCallback(async () => {
-    if (!currentLayout || isSaving) return;
-    setIsSaving(true);
-    setIsSaved(false);
-    const wasUntitled = layoutName.trim() === "Untitled";
-    try {
-      await axios.put(`/api/layouts/${currentLayout.id}`, { name: layoutName, components }, { headers: { Authorization: `Bearer ${token}` } });
-      setIsSaved(true);
-      setLastSavedAt(new Date());
-      document.title = layoutName ? `${layoutName} — ProtoBoard` : "ProtoBoard";
-      if (wasUntitled) setShowRenameHint(true);
-    } catch (err) { console.error(err); }
-    finally { setIsSaving(false); }
-  }, [currentLayout, layoutName, components, token, isSaving]);
-  // Keep ref in sync with the latest handleSave
-  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
-
-  // ── Ctrl+S / Cmd+S and Ctrl+Z / Cmd+Z keyboard shortcuts ────────────
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        handleSaveRef.current?.();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        setHistory((prev) => {
-          if (prev.length === 0) return prev;
-          const previous = prev[prev.length - 1];
-          setComponents(previous);
-          return prev.slice(0, -1);
-        });
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []); // intentionally empty — uses ref, stays stable
-
   const loadLayout = (layout) => {
+    syncNextId(layout.components);
+    historyRef.current = [];
     setCurrentLayout(layout);
     setLayoutName(layout.name);
     setComponents(layout.components || []);
-    setHistory([]);
     setIsSaved(true);
     setLastSavedAt(layout.updated_at ? new Date(layout.updated_at) : new Date());
     setView("editor");
-    document.title = layout.name ? `${layout.name} — ProtoBoard` : "ProtoBoard";
   };
 
   const createNewLayout = async () => {
     try {
-      // Clear canvas immediately before API call so new layout starts empty
-      setComponents([]);
-      setHistory([]);
-      // Auto-generate a smart name: count existing layouts and increment
-      const countRes = await axios.get("/api/layouts", { headers: { Authorization: `Bearer ${token}` } });
-      const count = (countRes.data || []).length;
-      const autoName = `Dashboard ${count + 1}`;
-      const res = await axios.post("/api/layouts", { name: autoName }, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
       loadLayout(res.data);
     } catch (err) { console.error(err); }
   };
 
+  const handleSave = useCallback(async () => {
+    if (!currentLayout || isSaving) return;
+    setIsSaving(true);
+    setIsSaved(false);
+    try {
+      await axios.put(`/api/layouts/${currentLayout.id}`, { name: layoutName, components }, { headers: { Authorization: `Bearer ${token}` } });
+      setIsSaved(true);
+      setLastSavedAt(new Date());
+    } catch (err) { console.error(err); }
+    finally { setIsSaving(false); }
+  }, [currentLayout, layoutName, components, token, isSaving]);
+
+  useEffect(() => { handleSaveRef.current = handleSave; }, [handleSave]);
+
+  useEffect(() => {
+    if (!token) return;
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleSaveRef.current?.();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        if (historyRef.current.length > 0) {
+          setComponents(historyRef.current.pop());
+          setIsSaved(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [token]);
+
   const handleAddComponent = useCallback((compType) => {
-    setComponents((prev) => {
-      pushHistory(prev);
-      const comp = {
-        id: genId(),
-        type: compType.type,
-        x: 40 + Math.random() * 80,
-        y: 40 + Math.random() * 80,
-        w: compType.defaultSize.w,
-        h: compType.defaultSize.h,
-        data: compType.defaultDataFn(),
-      };
-      setIsSaved(false);
-      return [...prev, comp];
-    });
+    const comp = {
+      id: genId(),
+      type: compType.type,
+      x: 40 + Math.random() * 80,
+      y: 40 + Math.random() * 80,
+      w: compType.defaultSize.w,
+      h: compType.defaultSize.h,
+      data: compType.defaultDataFn(),
+    };
+    setComponents((prev) => { historyRef.current.push(prev); return [...prev, comp]; });
+    setIsSaved(false);
     setPickerOpen(false);
-  }, [pushHistory]);
+  }, []);
 
   const handleUpdateComponent = useCallback((id, updates) => {
-    setComponents((prev) => {
-      pushHistory(prev);
-      setIsSaved(false);
-      return prev.map((c) => c.id === id ? { ...c, ...updates } : c);
-    });
-  }, [pushHistory]);
+    setIsSaved(false);
+    setComponents((prev) => prev.map((c) => c.id === id ? { ...c, ...updates } : c));
+  }, []);
 
   const handleDeleteComponent = useCallback((id) => {
-    setComponents((prev) => {
-      pushHistory(prev);
-      setIsSaved(false);
-      return prev.filter((c) => c.id !== id);
-    });
-  }, [pushHistory]);
+    setComponents((prev) => { historyRef.current.push(prev); return prev.filter((c) => c.id !== id); });
+    setIsSaved(false);
+  }, []);
 
   const handleDuplicateComponent = useCallback((id) => {
     setComponents((prev) => {
       const comp = prev.find((c) => c.id === id);
       if (!comp) return prev;
-      pushHistory(prev);
-      const newComp = { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } };
-      setIsSaved(false);
-      return [...prev, newComp];
+      historyRef.current.push(prev);
+      return [...prev, { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } }];
     });
-  }, [pushHistory]);
+    setIsSaved(false);
+  }, []);
 
   const handleLogout = () => {
-    setShowLogoutConfirm(true);
-  };
-
-  const confirmLogout = () => {
-    setToken(null); setCurrentLayout(null); setComponents([]); setHistory([]);
+    setToken(null); setCurrentLayout(null); setComponents([]);
     localStorage.removeItem("token");
   };
 
@@ -218,15 +146,7 @@ export default function App() {
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   if (!token) return <Auth onLogin={(tok) => setToken(tok)} />;
-  if (view === "layouts") return <Layouts token={token} onBack={() => setView("editor")} onSelect={loadLayout} onNewLayout={() => { setComponents([]); setHistory([]); }} />;
-
-  if (showLogoutConfirm) return (
-    <ConfirmDialog
-      title="Logout? Unsaved changes will be lost."
-      onConfirm={confirmLogout}
-      onCancel={() => setShowLogoutConfirm(false)}
-    />
-  );
+  if (view === "layouts") return <Layouts token={token} onBack={() => setView("editor")} onSelect={loadLayout} />;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#1a1a1a", fontFamily: "Segoe UI", overflow: "hidden" }}>
@@ -255,7 +175,7 @@ export default function App() {
 
         {isSaved && lastSavedAt && (
           <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>
-            Saved {Math.floor((Date.now() - lastSavedAt) / 60000)}m ago
+            Saved {Date.now() - lastSavedAt < 60000 ? "just now" : `${Math.floor((Date.now() - lastSavedAt) / 60000)}m ago`}
           </span>
         )}
 
@@ -271,22 +191,6 @@ export default function App() {
         }}>
           {isSaving ? "Saving..." : isSaved ? "Saved ✓" : "Save"}
         </button>
-        {showRenameHint && (
-          <div style={{
-            position: "absolute", top: 56, right: 16,
-            background: "#fff", border: `1px solid ${THEME.accent}`,
-            borderRadius: 8, padding: "10px 14px",
-            fontSize: 12, color: THEME.primary, fontFamily: "Segoe UI",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.15)", zIndex: 200,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <span>💡 Consider renaming this layout for clarity</span>
-            <button onClick={() => setShowRenameHint(false)} style={{
-              background: "none", border: "none", cursor: "pointer",
-              color: "#aaa", fontSize: 14, padding: "0 0 0 4px", lineHeight: 1,
-            }}>×</button>
-          </div>
-        )}
         <button onClick={handleExport} style={{
           padding: "6px 12px",
           background: "rgba(255,255,255,0.12)",
@@ -379,7 +283,7 @@ export default function App() {
         {/* ── Component Picker ──────────────────── */}
         {pickerOpen && (
           <div style={{
-            position: "absolute", top: 60, left: 16,
+            position: "absolute", top: 72, left: 256,
             background: "#fff",
             border: `1px solid ${THEME.border}`,
             borderRadius: 10, padding: "8px",
