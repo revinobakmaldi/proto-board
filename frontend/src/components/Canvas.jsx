@@ -4,10 +4,11 @@ import { THEME } from "../theme";
 import { Trash, CopySimple } from "@phosphor-icons/react";
 
 const GRID = 8;
+const MIN_W = 100;
+const MIN_H = 80;
 
 const snap = (v) => Math.round(v / GRID) * GRID;
 
-// Normalize mouse or touch event → { x, y }
 const pointerPos = (e) => {
   if (e.touches && e.touches.length > 0) {
     return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -21,30 +22,41 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
   const [resizing, setResizing] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const canvasRef = useRef(null);
-  const activeTouchId = useRef(null); // track which touch is dragging
+  const activeTouchId = useRef(null);
+
+  const canvasRect = useRef(null);
+
+  const updateCanvasRect = useCallback(() => {
+    if (canvasRef.current) {
+      canvasRect.current = canvasRef.current.getBoundingClientRect();
+    }
+  }, []);
 
   const handlePointerDown = useCallback((e, comp) => {
     e.stopPropagation();
+    updateCanvasRect();
     setSelected(comp.id);
-    const rect = canvasRef.current.getBoundingClientRect();
+    const rect = canvasRect.current;
     const pos = pointerPos(e);
     setDragOffset({ x: pos.x - rect.left - comp.x, y: pos.y - rect.top - comp.y });
     setDragging(comp.id);
-  }, []);
+  }, [updateCanvasRect]);
 
   const handleResizePointerDown = useCallback((e, comp, dir) => {
     e.stopPropagation();
+    updateCanvasRect();
     setSelected(comp.id);
     const pos = pointerPos(e);
-    setResizing({ id: comp.id, dir, startX: pos.x, startY: pos.y, origW: comp.w, origH: comp.h });
-  }, []);
+    setResizing({ id: comp.id, dir, startX: pos.x, startY: pos.y, origX: comp.x, origY: comp.y, origW: comp.w, origH: comp.h });
+  }, [updateCanvasRect]);
 
   const handlePointerMove = useCallback((e) => {
-    // Prevent page scroll while dragging on canvas
     if (dragging || resizing) e.preventDefault();
+    updateCanvasRect();
+    const rect = canvasRect.current;
+    if (!rect) return;
 
-    if (dragging && canvasRef.current) {
-      const rect = canvasRef.current.getBoundingClientRect();
+    if (dragging) {
       const pos = pointerPos(e);
       const x = snap(Math.max(0, pos.x - rect.left - dragOffset.x));
       const y = snap(Math.max(0, pos.y - rect.top - dragOffset.y));
@@ -54,14 +66,24 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
       const pos = pointerPos(e);
       const dx = pos.x - resizing.startX;
       const dy = pos.y - resizing.startY;
+      let x = resizing.origX, y = resizing.origY;
       let w = resizing.origW, h = resizing.origH;
-      if (resizing.dir.includes("e")) w = snap(Math.max(100, resizing.origW + dx));
-      if (resizing.dir.includes("s")) h = snap(Math.max(80, resizing.origH + dy));
-      if (resizing.dir.includes("w")) w = snap(Math.max(100, resizing.origW - dx));
-      if (resizing.dir.includes("n")) h = snap(Math.max(80, resizing.origH - dy));
-      onUpdate(resizing.id, { w, h });
+
+      if (resizing.dir.includes("e")) w = snap(Math.max(MIN_W, resizing.origW + dx));
+      if (resizing.dir.includes("s")) h = snap(Math.max(MIN_H, resizing.origH + dy));
+      if (resizing.dir.includes("w")) {
+        const newW = snap(Math.max(MIN_W, resizing.origW - dx));
+        x = snap(resizing.origX + resizing.origW - newW);
+        w = newW;
+      }
+      if (resizing.dir.includes("n")) {
+        const newH = snap(Math.max(MIN_H, resizing.origH - dy));
+        y = snap(resizing.origY + resizing.origH - newH);
+        h = newH;
+      }
+      onUpdate(resizing.id, { x, y, w, h });
     }
-  }, [dragging, resizing, dragOffset, onUpdate]);
+  }, [dragging, resizing, dragOffset, onUpdate, updateCanvasRect]);
 
   const handlePointerUp = useCallback(() => {
     setDragging(null);
@@ -69,14 +91,12 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
     activeTouchId.current = null;
   }, []);
 
-  // Touch start — detect which touch started on a draggable element
   const handleTouchStart = useCallback((e, comp) => {
-    if (activeTouchId.current !== null) return; // already dragging
+    if (activeTouchId.current !== null) return;
     activeTouchId.current = e.changedTouches[0].identifier;
     handlePointerDown(e, comp);
   }, [handlePointerDown]);
 
-  // Touch move — only respond to the finger that's dragging
   const handleTouchMove = useCallback((e) => {
     const active = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId.current);
     if (!active) return;
@@ -84,7 +104,6 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
     handlePointerMove(e);
   }, [dragging, resizing, handlePointerMove]);
 
-  // Touch end — only clear if it's the finger that was dragging
   const handleTouchEnd = useCallback((e) => {
     const active = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId.current);
     if (!active) return;
@@ -103,7 +122,7 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
         overflow: "auto",
         cursor: dragging ? "grabbing" : "default",
         minHeight: "100%",
-        touchAction: dragging || resizing ? "none" : "auto",
+        touchAction: "none",
       }}
       onMouseMove={handlePointerMove}
       onMouseUp={handlePointerUp}
@@ -126,11 +145,9 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
               height: comp.h,
               cursor: isDragging ? "grabbing" : "grab",
               zIndex: isSelected ? 10 : 1,
-              touchAction: "none",
             }}
             onMouseDown={(e) => { e.stopPropagation(); handlePointerDown(e, comp); }}
             onTouchStart={(e) => handleTouchStart(e, comp)}
-            onTouchMove={(e) => handleTouchMove(e)}
             onClick={(e) => { e.stopPropagation(); setSelected(comp.id); }}
           >
             {/* Component content */}
@@ -138,22 +155,22 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
               {renderComponent(comp.type, comp.data)}
             </div>
 
-            {/* Selection outline */}
+            {/* Selection border — dashed to hint at resize affordance */}
             {isSelected && (
               <div style={{
                 position: "absolute", inset: -2,
-                border: `2px solid ${THEME.accent}`,
+                border: `2px dashed ${THEME.accent}`,
                 borderRadius: 6, pointerEvents: "none",
               }} />
             )}
 
-            {/* Toolbar */}
+            {/* Toolbar — BELOW the component (not above) */}
             {isSelected && (
               <div style={{
-                position: "absolute", top: -40, left: 0,
+                position: "absolute", top: "calc(100% + 10px)", left: 0,
                 display: "flex", gap: 4,
                 background: THEME.primary, borderRadius: 6,
-                padding: "4px 8px", zIndex: 20,
+                padding: "4px 8px", zIndex: 20, whiteSpace: "nowrap",
               }}>
                 {[
                   { icon: <CopySimple size={16} weight="regular" />, label: "Duplicate", onClick: () => onDuplicate(comp.id) },
@@ -170,24 +187,32 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
               </div>
             )}
 
-            {/* Resize handles */}
-            {isSelected && ["se", "sw", "ne", "nw", "e", "s", "w", "n"].map((dir) => {
-              const baseStyle = {
-                se: { right: -7, bottom: -7, cursor: "se-resize" },
-                sw: { left: -7, bottom: -7, cursor: "sw-resize" },
-                ne: { right: -7, top: -7, cursor: "ne-resize" },
-                nw: { left: -7, top: -7, cursor: "nw-resize" },
-                e: { right: -7, top: "50%", transform: "translateY(-50%)", cursor: "e-resize" },
-                s: { bottom: -7, left: "50%", transform: "translateX(-50%)", cursor: "s-resize" },
-                w: { left: -7, top: "50%", transform: "translateY(-50%)", cursor: "w-resize" },
-                n: { top: -7, left: "50%", transform: "translateX(-50%)", cursor: "n-resize" },
+            {/* Corner resize handles only — 4 corners, 28px hit targets */}
+            {isSelected && ["se", "sw", "ne", "nw"].map((dir) => {
+              const r = 8; // half of 16px handle size
+              const cornerStyle = {
+                se: { right: -r, bottom: -r },
+                sw: { left: -r, bottom: -r },
+                ne: { right: -r, top: -r },
+                nw: { left: -r, top: -r },
               }[dir];
               return (
                 <div
                   key={dir}
                   onMouseDown={(e) => { e.stopPropagation(); handleResizePointerDown(e, comp, dir); }}
                   onTouchStart={(e) => { e.stopPropagation(); handleResizePointerDown(e, comp, dir); }}
-                  style={{ position: "absolute", width: 20, height: 20, background: THEME.accent, borderRadius: 3, ...baseStyle, zIndex: 21 }}
+                  style={{
+                    position: "absolute",
+                    width: 16, height: 16,
+                    background: THEME.accent,
+                    borderRadius: 3,
+                    cursor: {
+                      se: "se-resize", sw: "sw-resize",
+                      ne: "ne-resize", nw: "nw-resize",
+                    }[dir],
+                    zIndex: 21,
+                    ...cornerStyle,
+                  }}
                 />
               );
             })}
