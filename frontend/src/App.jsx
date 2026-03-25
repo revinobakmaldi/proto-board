@@ -46,7 +46,7 @@ export default function App() {
     setLayoutName(layout.name);
     setComponents(layout.components || []);
     setIsSaved(true);
-    setLastSavedAt(layout.updated_at ? new Date(layout.updated_at) : new Date());
+    setLastSavedAt(null);
     setView("editor");
   };
 
@@ -245,7 +245,7 @@ export default function App() {
 
         {/* Canvas (fills remaining space) */}
         <Canvas
-          innerRef={canvasRef}
+          ref={canvasRef}
           components={components}
           onUpdate={handleUpdateComponent}
           onDelete={handleDeleteComponent}
