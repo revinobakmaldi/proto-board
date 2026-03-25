@@ -174,6 +174,36 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
                 }} />
               )}
 
+              {/* Delete button — top-right corner, shown when selected */}
+              {isSelected && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDelete(comp.id); }}
+                  title="Remove"
+                  style={{
+                    position: "absolute",
+                    top: -14,
+                    right: -14,
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: THEME.bad,
+                    border: "2px solid #fff",
+                    color: "#fff",
+                    fontSize: 14,
+                    lineHeight: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    zIndex: 30,
+                    padding: 0,
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  ×
+                </button>
+              )}
+
               {/* Toolbar below */}
               {isSelected && (
                 <div style={{
