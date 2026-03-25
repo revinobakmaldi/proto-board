@@ -129,7 +129,7 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
         background: THEME.surface,
         userSelect: isInteracting ? "none" : "auto",
         WebkitUserSelect: isInteracting ? "none" : "auto",
-        touchAction: "none",
+        touchAction: "pan-x pan-y",
       }}
     >
       {/* Dotted grid */}
@@ -155,6 +155,7 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
                 cursor: isDragging ? "grabbing" : "grab",
                 zIndex: isSelected ? 10 : 1,
                 userSelect: "none",
+                touchAction: "none",
               }}
               onMouseDown={(e) => { e.stopPropagation(); handlePointerDown(e, comp); }}
               onTouchStart={(e) => handleTouchStart(e, comp)}
