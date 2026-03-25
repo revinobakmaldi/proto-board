@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import axios from "axios";
+import { toPng } from "html-to-image";
 import Auth from "./pages/Auth";
 import Layouts from "./pages/Layouts";
 import Canvas from "./components/Canvas";
@@ -19,6 +20,8 @@ export default function App() {
   const [isSaved, setIsSaved] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const canvasAreaRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     if (token && !currentLayout && view === "editor") {
@@ -97,6 +100,19 @@ export default function App() {
     localStorage.removeItem("token");
   };
 
+  const handleExport = useCallback(() => {
+    const el = canvasAreaRef.current;
+    if (!el) return;
+    toPng(el, { backgroundColor: "#ffffff", pixelRatio: 2 })
+      .then((dataUrl) => {
+        const a = document.createElement("a");
+        a.download = `${layoutName.replace(/\s+/g, "-").toLowerCase()}.png`;
+        a.href = dataUrl;
+        a.click();
+      })
+      .catch(console.error);
+  }, [layoutName]);
+
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   if (!token) return <Auth onLogin={(tok) => setToken(tok)} />;
@@ -145,6 +161,14 @@ export default function App() {
         }}>
           {isSaving ? "Saving..." : isSaved ? "Saved ✓" : "Save"}
         </button>
+        <button onClick={handleExport} style={{
+          padding: "6px 12px",
+          background: "rgba(255,255,255,0.12)",
+          border: "none", borderRadius: 6,
+          color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer",
+        }}>
+          Export PNG
+        </button>
         <button onClick={() => setView("layouts")} style={{
           padding: "6px 12px", background: "rgba(255,255,255,0.12)",
           border: "none", borderRadius: 6, color: "#fff", fontSize: 13, cursor: "pointer",
@@ -156,10 +180,11 @@ export default function App() {
       </div>
 
       {/* ── Main area (sidebar + canvas) ─────── */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
+      <div ref={canvasAreaRef} className="canvas-area" style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
 
         {/* Canvas (fills remaining space) */}
         <Canvas
+          innerRef={canvasRef}
           components={components}
           onUpdate={handleUpdateComponent}
           onDelete={handleDeleteComponent}

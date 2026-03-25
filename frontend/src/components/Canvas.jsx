@@ -14,7 +14,7 @@ const pointerPos = (e) => {
   return { x: e.clientX, y: e.clientY };
 };
 
-export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) {
+const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete, onDuplicate }, fwdRef) {
   const [selected, setSelected] = useState(null);
   const [dragging, setDragging] = useState(null);
   const [resizing, setResizing] = useState(null);
@@ -23,6 +23,13 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
   const activeTouchId = useRef(null);
   const canvasRef = useRef(null);
   const canvasRect = useRef(null);
+
+  // Merge internal ref + forwarded ref so parent can grab the DOM node
+  const setRef = useCallback((el) => {
+    canvasRef.current = el;
+    if (typeof fwdRef === "function") fwdRef(el);
+    else if (fwdRef) fwdRef.current = el;
+  }, [fwdRef]);
 
   const updateCanvasRect = useCallback(() => {
     if (canvasRef.current) canvasRect.current = canvasRef.current.getBoundingClientRect();
@@ -108,7 +115,7 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
 
   return (
     <div
-      ref={canvasRef}
+      ref={setRef}
       onMouseMove={dragging || resizing ? handlePointerMove : undefined}
       onMouseUp={handlePointerUp}
       onMouseLeave={handlePointerUp}
@@ -219,4 +226,6 @@ export default function Canvas({ components, onUpdate, onDelete, onDuplicate }) 
       </div>
     </div>
   );
-}
+});
+
+export default Canvas;
