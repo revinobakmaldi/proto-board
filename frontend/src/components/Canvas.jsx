@@ -123,9 +123,9 @@ const Canvas = React.forwardRef(function Canvas({ components, onUpdate, onDelete
       onTouchEnd={handleTouchEnd}
       onClick={() => setSelected(null)}
       style={{
-        position: "relative",
-        flex: 1,
-        overflow: "auto",
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
         background: THEME.surface,
         userSelect: isInteracting ? "none" : "auto",
         WebkitUserSelect: isInteracting ? "none" : "auto",

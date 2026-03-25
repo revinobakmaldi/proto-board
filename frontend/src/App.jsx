@@ -130,49 +130,18 @@ export default function App() {
     localStorage.removeItem("token");
   };
 
-  const handleExport = useCallback(async () => {
-    const areaEl = canvasAreaRef.current;
-    const scrollEl = canvasRef.current;
-    if (!areaEl || !scrollEl) return;
-
-    // Calculate full content bounds from component positions
-    const pad = 40;
-    const contentW = components.length
-      ? Math.max(...components.map(c => c.x + c.w)) + pad
-      : 800;
-    const contentH = components.length
-      ? Math.max(...components.map(c => c.y + c.h)) + pad
-      : 600;
-    const exportW = 240 + contentW;  // sidebar width + canvas content
-    const exportH = 64 + contentH;   // header height + canvas content
-
-    // Save inline styles
-    const aS = areaEl.style, sS = scrollEl.style;
-    const saved = { aW: aS.width, aH: aS.height, aO: aS.overflow, sO: sS.overflow, sW: sS.width, sH: sS.height, sF: sS.flex };
-
-    // Temporarily expand to full content size for capture
-    aS.width = exportW + "px";
-    aS.height = exportH + "px";
-    aS.overflow = "visible";
-    sS.overflow = "visible";
-    sS.flex = "none";
-    sS.width = contentW + "px";
-    sS.height = contentH + "px";
-
-    try {
-      const dataUrl = await toPng(areaEl, { backgroundColor: "#ffffff", pixelRatio: 2 });
-      const a = document.createElement("a");
-      a.download = `${layoutName.replace(/\s+/g, "-").toLowerCase()}.png`;
-      a.href = dataUrl;
-      a.click();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      // Restore original styles
-      aS.width = saved.aW; aS.height = saved.aH; aS.overflow = saved.aO;
-      sS.overflow = saved.sO; sS.width = saved.sW; sS.height = saved.sH; sS.flex = saved.sF;
-    }
-  }, [layoutName, components]);
+  const handleExport = useCallback(() => {
+    const el = canvasAreaRef.current;
+    if (!el) return;
+    toPng(el, { backgroundColor: "#ffffff", pixelRatio: 2 })
+      .then((dataUrl) => {
+        const a = document.createElement("a");
+        a.download = `${layoutName.replace(/\s+/g, "-").toLowerCase()}.png`;
+        a.href = dataUrl;
+        a.click();
+      })
+      .catch(console.error);
+  }, [layoutName]);
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
@@ -241,7 +210,9 @@ export default function App() {
       </div>
 
       {/* ── Main area (sidebar + canvas) ─────── */}
-      <div ref={canvasAreaRef} className="canvas-area" style={{ display: "flex", flex: 1, overflow: "hidden", position: "relative" }}>
+      {/* Scroll wrapper — lets viewport pan around the fixed 1440×2560 canvas */}
+      <div style={{ flex: 1, overflow: "auto", background: "#1a1a1a" }}>
+      <div ref={canvasAreaRef} className="canvas-area" style={{ display: "flex", width: 1440, height: 2560, position: "relative", flexShrink: 0 }}>
 
         {/* Canvas (fills remaining space) */}
         <Canvas
@@ -350,6 +321,7 @@ export default function App() {
           </div>
         )}
       </div>
+      </div> {/* end scroll wrapper */}
     </div>
   );
 }
