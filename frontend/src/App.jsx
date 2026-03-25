@@ -54,6 +54,7 @@ export default function App() {
   const [currentLayout, setCurrentLayout] = useState(null);
   const [layoutName, setLayoutName] = useState("Untitled");
   const [components, setComponents] = useState([]);
+  const [history, setHistory] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
@@ -73,12 +74,29 @@ export default function App() {
     }
   }, [token]);
 
-  // ── Ctrl+S / Cmd+S keyboard shortcut ────────────────────────────────
+  // ── Push current components to history ──────────────────────────────
+  const pushHistory = useCallback((currentComponents) => {
+    setHistory((prev) => {
+      const next = [...prev, currentComponents];
+      return next.length > 20 ? next.slice(next.length - 20) : next;
+    });
+  }, []);
+
+  // ── Ctrl+S / Cmd+S and Ctrl+Z / Cmd+Z keyboard shortcuts ────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
         handleSave();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        setHistory((prev) => {
+          if (prev.length === 0) return prev;
+          const previous = prev[prev.length - 1];
+          setComponents(previous);
+          return prev.slice(0, -1);
+        });
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -89,6 +107,7 @@ export default function App() {
     setCurrentLayout(layout);
     setLayoutName(layout.name);
     setComponents(layout.components || []);
+    setHistory([]);
     setIsSaved(true);
     setLastSavedAt(layout.updated_at ? new Date(layout.updated_at) : new Date());
     setView("editor");
@@ -96,6 +115,7 @@ export default function App() {
 
   const createNewLayout = async () => {
     try {
+      setHistory([]);
       const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
       loadLayout(res.data);
     } catch (err) { console.error(err); }
@@ -114,44 +134,56 @@ export default function App() {
   }, [currentLayout, layoutName, components, token, isSaving]);
 
   const handleAddComponent = useCallback((compType) => {
-    const comp = {
-      id: genId(),
-      type: compType.type,
-      x: 40 + Math.random() * 80,
-      y: 40 + Math.random() * 80,
-      w: compType.defaultSize.w,
-      h: compType.defaultSize.h,
-      data: compType.defaultDataFn(),
-    };
-    setIsSaved(false);
-    setComponents((prev) => [...prev, comp]);
+    setComponents((prev) => {
+      pushHistory(prev);
+      const comp = {
+        id: genId(),
+        type: compType.type,
+        x: 40 + Math.random() * 80,
+        y: 40 + Math.random() * 80,
+        w: compType.defaultSize.w,
+        h: compType.defaultSize.h,
+        data: compType.defaultDataFn(),
+      };
+      setIsSaved(false);
+      return [...prev, comp];
+    });
     setPickerOpen(false);
-  }, []);
+  }, [pushHistory]);
 
   const handleUpdateComponent = useCallback((id, updates) => {
-    setIsSaved(false);
-    setComponents((prev) => prev.map((c) => c.id === id ? { ...c, ...updates } : c));
-  }, []);
+    setComponents((prev) => {
+      pushHistory(prev);
+      setIsSaved(false);
+      return prev.map((c) => c.id === id ? { ...c, ...updates } : c);
+    });
+  }, [pushHistory]);
 
   const handleDeleteComponent = useCallback((id) => {
-    setIsSaved(false);
-    setComponents((prev) => prev.filter((c) => c.id !== id));
-  }, []);
+    setComponents((prev) => {
+      pushHistory(prev);
+      setIsSaved(false);
+      return prev.filter((c) => c.id !== id);
+    });
+  }, [pushHistory]);
 
   const handleDuplicateComponent = useCallback((id) => {
-    const comp = components.find((c) => c.id === id);
-    if (!comp) return;
-    const newComp = { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } };
-    setIsSaved(false);
-    setComponents((prev) => [...prev, newComp]);
-  }, [components]);
+    setComponents((prev) => {
+      const comp = prev.find((c) => c.id === id);
+      if (!comp) return prev;
+      pushHistory(prev);
+      const newComp = { ...comp, id: genId(), x: comp.x + 20, y: comp.y + 20, data: { ...comp.data } };
+      setIsSaved(false);
+      return [...prev, newComp];
+    });
+  }, [pushHistory]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);
   };
 
   const confirmLogout = () => {
-    setToken(null); setCurrentLayout(null); setComponents([]);
+    setToken(null); setCurrentLayout(null); setComponents([]); setHistory([]);
     localStorage.removeItem("token");
   };
 
