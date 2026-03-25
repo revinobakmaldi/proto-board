@@ -57,6 +57,7 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [showRenameHint, setShowRenameHint] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -111,6 +112,7 @@ export default function App() {
     setIsSaved(true);
     setLastSavedAt(layout.updated_at ? new Date(layout.updated_at) : new Date());
     setView("editor");
+    document.title = layout.name ? `${layout.name} — ProtoBoard` : "ProtoBoard";
   };
 
   const createNewLayout = async () => {
@@ -118,7 +120,11 @@ export default function App() {
       // Clear canvas immediately before API call so new layout starts empty
       setComponents([]);
       setHistory([]);
-      const res = await axios.post("/api/layouts", { name: "Untitled" }, { headers: { Authorization: `Bearer ${token}` } });
+      // Auto-generate a smart name: count existing layouts and increment
+      const countRes = await axios.get("/api/layouts", { headers: { Authorization: `Bearer ${token}` } });
+      const count = (countRes.data || []).length;
+      const autoName = `Dashboard ${count + 1}`;
+      const res = await axios.post("/api/layouts", { name: autoName }, { headers: { Authorization: `Bearer ${token}` } });
       loadLayout(res.data);
     } catch (err) { console.error(err); }
   };
@@ -127,10 +133,13 @@ export default function App() {
     if (!currentLayout || isSaving) return;
     setIsSaving(true);
     setIsSaved(false);
+    const wasUntitled = layoutName.trim() === "Untitled";
     try {
       await axios.put(`/api/layouts/${currentLayout.id}`, { name: layoutName, components }, { headers: { Authorization: `Bearer ${token}` } });
       setIsSaved(true);
       setLastSavedAt(new Date());
+      document.title = layoutName ? `${layoutName} — ProtoBoard` : "ProtoBoard";
+      if (wasUntitled) setShowRenameHint(true);
     } catch (err) { console.error(err); }
     finally { setIsSaving(false); }
   }, [currentLayout, layoutName, components, token, isSaving]);
@@ -258,6 +267,22 @@ export default function App() {
         }}>
           {isSaving ? "Saving..." : isSaved ? "Saved ✓" : "Save"}
         </button>
+        {showRenameHint && (
+          <div style={{
+            position: "absolute", top: 56, right: 16,
+            background: "#fff", border: `1px solid ${THEME.accent}`,
+            borderRadius: 8, padding: "10px 14px",
+            fontSize: 12, color: THEME.primary, fontFamily: "Segoe UI",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.15)", zIndex: 200,
+            display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <span>💡 Consider renaming this layout for clarity</span>
+            <button onClick={() => setShowRenameHint(false)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "#aaa", fontSize: 14, padding: "0 0 0 4px", lineHeight: 1,
+            }}>×</button>
+          </div>
+        )}
         <button onClick={handleExport} style={{
           padding: "6px 12px",
           background: "rgba(255,255,255,0.12)",
