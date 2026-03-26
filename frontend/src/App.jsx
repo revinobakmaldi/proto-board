@@ -236,7 +236,6 @@ export default function App() {
           {/* Logo */}
           <div style={{ padding: "20px 16px", borderBottom: "1px solid #f0f0f0" }}>
             <div style={{ fontSize: 11, color: "#FF2600", fontWeight: 700, letterSpacing: "0.05em", marginBottom: 6 }}>COMPANY LOGO</div>
-            <div style={{ fontSize: 12, color: "#888" }}>{layoutName}</div>
           </div>
           {/* Nav */}
           <div style={{ padding: "12px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
