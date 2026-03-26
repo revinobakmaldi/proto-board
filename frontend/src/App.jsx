@@ -133,7 +133,7 @@ export default function App() {
   const handleExport = useCallback(() => {
     const el = canvasAreaRef.current;
     if (!el) return;
-    toPng(el, { backgroundColor: "#ffffff", pixelRatio: 2 })
+    toPng(el, { backgroundColor: "#ffffff", pixelRatio: 1 })
       .then((dataUrl) => {
         const a = document.createElement("a");
         a.download = `${layoutName.replace(/\s+/g, "-").toLowerCase()}.png`;
