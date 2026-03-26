@@ -134,7 +134,7 @@ export const KPICard = ({ data }) => {
   );
 };
 
-// ── Bar Chart ─────────────────────────────────────────────
+// ── Column Chart ──────────────────────────────────────────
 const BAR_DATA = () => [
   { name: "Jan", value: rand(50, 300) },
   { name: "Feb", value: rand(50, 300) },
@@ -144,9 +144,9 @@ const BAR_DATA = () => [
   { name: "Jun", value: rand(50, 300) },
 ];
 
-export const BarChartData = () => ({ type: "bar", data: BAR_DATA() });
+export const ColumnChartData = () => ({ type: "column", data: BAR_DATA() });
 
-export const BarChartComponent = ({ data }) => {
+export const ColumnChartComponent = ({ data }) => {
   if (!data || !data.data) return <div style={{ height: "100%", background: THEME.background, borderRadius: 8, border: `1px solid ${THEME.border}` }} />;
   return (
     <div style={{ background: THEME.background, borderRadius: 8, padding: 16, border: `1px solid ${THEME.border}`, height: "100%" }}>
@@ -283,7 +283,7 @@ export const TableComponent = ({ data }) => {
 // ── Component Registry ─────────────────────────────────────
 export const COMPONENT_TYPES = [
   { type: "kpi", label: "KPI Card", defaultSize: { w: 280, h: 200 }, defaultDataFn: KPICardData },
-  { type: "bar", label: "Column Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: BarChartData },
+  { type: "column", label: "Column Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: ColumnChartData },
   { type: "line", label: "Line Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: LineChartData },
   { type: "pie", label: "Pie Chart", defaultSize: { w: 300, h: 240 }, defaultDataFn: PieChartData },
   { type: "table", label: "Data Table", defaultSize: { w: 500, h: 280 }, defaultDataFn: TableData },
@@ -291,7 +291,7 @@ export const COMPONENT_TYPES = [
 
 export const COMPONENT_ICONS = {
   kpi:   <ChartLineUp size={18} weight="duotone" />,
-  bar:   <ChartBar size={18} weight="duotone" />,
+  column: <ChartBar size={18} weight="duotone" />,
   line:  <ChartLine size={18} weight="duotone" />,
   pie:   <ChartPie size={18} weight="duotone" />,
   table: <Table size={18} weight="duotone" />,
@@ -306,7 +306,7 @@ export const renderComponent = (type, data) => {
   }
   switch (type) {
     case "kpi": return <KPICard data={data} />;
-    case "bar": return <BarChartComponent data={data} />;
+    case "column": return <ColumnChartComponent data={data} />;
     case "line": return <LineChartComponent data={data} />;
     case "pie": return <PieChartComponent data={data} />;
     case "table": return <TableComponent data={data} />;
