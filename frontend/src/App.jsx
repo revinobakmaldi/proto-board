@@ -226,7 +226,7 @@ export default function App() {
         {/* Sidebar overlay */}
         <div style={{
           position: "absolute", left: 0, top: 0,
-          width: 240, height: "100%",
+          width: 140, height: "100%",
           background: "#fff",
           borderRight: "1px solid #e5e5e5",
           display: "flex", flexDirection: "column",
@@ -262,7 +262,7 @@ export default function App() {
 
         {/* Header overlay */}
         <div style={{
-          position: "absolute", left: 240, top: 0, right: 0,
+          position: "absolute", left: 140, top: 0, right: 0,
           height: 64, background: "#fff",
           borderBottom: "1px solid #e5e5e5",
           display: "flex", alignItems: "center", justifyContent: "space-between",
