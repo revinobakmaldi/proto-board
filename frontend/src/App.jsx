@@ -285,7 +285,7 @@ export default function App() {
         {/* ── Component Picker ──────────────────── */}
         {pickerOpen && (
           <div style={{
-            position: "absolute", top: 72, left: 8,
+            position: "absolute", top: 8, left: 8,
             background: "#fff",
             border: `1px solid ${THEME.border}`,
             borderRadius: 10, padding: "8px",
