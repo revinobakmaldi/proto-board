@@ -253,10 +253,6 @@ export default function App() {
           <div style={{ marginTop: "auto", padding: "16px", borderTop: "1px solid #f0f0f0", fontSize: 10, color: "#aaa", lineHeight: 1.8 }}>
             <div>Data Last Updated</div>
             <div style={{ color: "#888", fontWeight: 500 }}>{today}</div>
-            <div style={{ marginTop: 6 }}>This Week Period</div>
-            <div style={{ color: "#888", fontWeight: 500 }}>2026-03-10 — 2026-03-16</div>
-            <div style={{ marginTop: 6 }}>Last Week Period</div>
-            <div style={{ color: "#888", fontWeight: 500 }}>2026-03-03 — 2026-03-09</div>
           </div>
         </div>
 
