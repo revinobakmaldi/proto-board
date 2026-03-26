@@ -1,10 +1,11 @@
 import React from "react";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import {
-  ChartLineUp, ChartBar, ChartLine, ChartPie, Table,
+  ChartLineUp, ChartBar, ChartLine, ChartPie, Table, ChartLineDown,
 } from "@phosphor-icons/react";
 import { THEME, DATA_COLORS } from "../theme";
 
@@ -231,6 +232,50 @@ export const PieChartComponent = ({ data }) => {
   );
 };
 
+// ── Area Chart ─────────────────────────────────────────────
+const AREA_DATA = () => [
+  { name: "Jan", actual: rand(40, 200), previous: rand(40, 200) },
+  { name: "Feb", actual: rand(40, 200), previous: rand(40, 200) },
+  { name: "Mar", actual: rand(40, 200), previous: rand(40, 200) },
+  { name: "Apr", actual: rand(40, 200), previous: rand(40, 200) },
+  { name: "May", actual: rand(40, 200), previous: rand(40, 200) },
+  { name: "Jun", actual: rand(40, 200), previous: rand(40, 200) },
+];
+
+export const AreaChartData = () => ({ type: "area", data: AREA_DATA() });
+
+export const AreaChartComponent = ({ data }) => {
+  if (!data || !data.data) return <div style={{ height: "100%", background: THEME.background, borderRadius: 8, border: `1px solid ${THEME.border}` }} />;
+  return (
+    <div style={{ background: THEME.background, borderRadius: 8, padding: 16, border: `1px solid ${THEME.border}`, height: "100%" }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: THEME.primary, marginBottom: 12, fontFamily: "Segoe UI" }}>
+        Volume Trend
+      </div>
+      <ResponsiveContainer width="100%" height={180}>
+        <AreaChart data={data.data}>
+          <defs>
+            <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={THEME.teal} stopOpacity={0.7} />
+              <stop offset="95%" stopColor={THEME.teal} stopOpacity={0.05} />
+            </linearGradient>
+            <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={THEME.accent} stopOpacity={0.4} />
+              <stop offset="95%" stopColor={THEME.accent} stopOpacity={0.05} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke={THEME.border} />
+          <XAxis dataKey="name" tick={{ fontSize: 11, fill: THEME.primary, fontFamily: "Segoe UI" }} />
+          <YAxis tick={{ fontSize: 11, fill: THEME.primary, fontFamily: "Segoe UI" }} />
+          <Tooltip contentStyle={{ fontSize: 12, fontFamily: "Segoe UI", borderRadius: 6, border: `1px solid ${THEME.border}` }} />
+          <Legend wrapperStyle={{ fontSize: 12, fontFamily: "Segoe UI" }} />
+          <Area type="monotone" dataKey="previous" stroke={THEME.accent} strokeWidth={1.5} strokeDasharray="5 5" fill="url(#colorPrevious)" name="Previous" />
+          <Area type="monotone" dataKey="actual" stroke={THEME.teal} strokeWidth={2} fill="url(#colorActual)" name="Actual" />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
 // ── Data Table ─────────────────────────────────────────────
 const STORES = ["KFC Bandung", "McD Jakarta", "Starbucks SBY", "Chatime Bandung", "HokBen Surabaya", "BurgerKing Medan"];
 const PRODUCTS = ["Americano", "Chicken Bucket", "Rice Bowl", "Beef Burger", "Milk Tea", "Nuggets"];
@@ -287,6 +332,7 @@ export const COMPONENT_TYPES = [
   { type: "line", label: "Line Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: LineChartData },
   { type: "pie", label: "Pie Chart", defaultSize: { w: 300, h: 240 }, defaultDataFn: PieChartData },
   { type: "table", label: "Data Table", defaultSize: { w: 500, h: 280 }, defaultDataFn: TableData },
+  { type: "area", label: "Area Chart", defaultSize: { w: 380, h: 240 }, defaultDataFn: AreaChartData },
 ];
 
 export const COMPONENT_ICONS = {
@@ -295,6 +341,7 @@ export const COMPONENT_ICONS = {
   line:  <ChartLine size={18} weight="duotone" />,
   pie:   <ChartPie size={18} weight="duotone" />,
   table: <Table size={18} weight="duotone" />,
+  area:  <ChartLineDown size={18} weight="duotone" />,
 };
 
 export const renderComponent = (type, data) => {
@@ -310,6 +357,7 @@ export const renderComponent = (type, data) => {
     case "line": return <LineChartComponent data={data} />;
     case "pie": return <PieChartComponent data={data} />;
     case "table": return <TableComponent data={data} />;
+    case "area": return <AreaChartComponent data={data} />;
     default: return null;
   }
 };
