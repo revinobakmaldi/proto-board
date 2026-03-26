@@ -212,7 +212,7 @@ export default function App() {
       {/* ── Main area (sidebar + canvas) ─────── */}
       {/* Scroll wrapper — lets viewport pan around the fixed 1440×2560 canvas */}
       <div style={{ flex: 1, overflow: "auto", background: "#1a1a1a" }}>
-      <div ref={canvasAreaRef} className="canvas-area" style={{ display: "flex", width: 1440, height: 2560, position: "relative", flexShrink: 0 }}>
+      <div ref={canvasAreaRef} className="canvas-area" style={{ display: "flex", width: 2560, height: 1440, position: "relative", flexShrink: 0 }}>
 
         {/* Canvas (fills remaining space) */}
         <Canvas
